@@ -1,3 +1,4 @@
+import { useAuth } from '@/contexts/AuthContext';
 import { Parking } from '@/db/models';
 import { ParkingService } from '@/db/services/ParkingService';
 import { ReservationService } from '@/db/services/ReservationService';
@@ -35,6 +36,7 @@ export default function PaymentScreen() {
   const [reservationCode, setReservationCode] = useState('');
   const [parkingService] = useState(() => new ParkingService());
   const [reservationService] = useState(() => new ReservationService());
+  const { user, refreshProfile } = useAuth();
 
   useEffect(() => {
     loadParkingDetails();
@@ -81,6 +83,7 @@ export default function PaymentScreen() {
   };
 
   const handleConfirmReservation = async () => {
+    if (!user) return;
     setLoading(true);
 
     try {
@@ -92,7 +95,7 @@ export default function PaymentScreen() {
 
       const newReservation = {
         parkingId: parking.id,
-        userId: 1, // Usuario mock - en una aplicación real esto vendría del contexto de autenticación
+        userId: user.id,
         status: 'active' as const,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
@@ -118,6 +121,9 @@ export default function PaymentScreen() {
       if (!updateSuccess) {
         console.warn('No se pudo actualizar la disponibilidad del parqueo');
       }
+
+      // Refrescar el perfil del usuario para actualizar totalSpent y otros datos
+      await refreshProfile();
 
       setReservationConfirmed(true);
     } catch (error) {

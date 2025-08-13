@@ -57,7 +57,7 @@ export default function HistoryScreen() {
   };
 
   const formatCurrency = (amount: number) => {
-    return `RD$${amount.toLocaleString()}`;
+    return `$${amount.toLocaleString()}`;
   };
 
   return (
